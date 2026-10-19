@@ -42,3 +42,31 @@ def create_idea(idea: IdeaCreate):
     db.refresh(new_idea)
     db.close()
     return new_idea
+
+# --- 4. THE SMART TAG GENERATOR (Mock NLP) ---
+class TagRequest(BaseModel):
+    text: str
+
+@app.post("/generate-tags")
+def generate_tags(request: TagRequest):
+    text = request.text.lower()
+    tags = []
+    
+    # Simple keyword matching logic
+    if "app" in text or "build" in text:
+        tags.append("side-project")
+    if "habit" in text or "health" in text or "workout" in text:
+        tags.append("health")
+    if "react" in text or "python" in text or "code" in text or "api" in text:
+        tags.append("coding")
+    if "read" in text or "article" in text or "book" in text:
+        tags.append("reading")
+    if "ai" in text or "student" in text or "startup" in text:
+        tags.append("business")
+        
+    # If no keywords matched, give a default tag
+    if not tags:
+        tags.append("random-thought")
+        
+    # Return the top 3 tags
+    return {"original_text": request.text, "generated_tags": tags[:3]}

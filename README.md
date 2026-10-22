@@ -15,7 +15,37 @@ flowchart LR
     FE -->|Rendered UI| User
 ```
 
+flowchart TD
+    %% Heroes
+    subgraph Heroes ["🦸‍♂️ The Heroes"]
+        Next["Next.js<br/>(The Visionary)"]
+        Fast["FastAPI<br/>(The Brains)"]
+        Supa["Supabase<br/>(The Fortress)"]
+    end
 
+    %% Villains
+    subgraph Villains ["🦹‍♂️ The Villains"]
+        CORS["The Phantom CORS<br/>(Gatekeeper of Ports)"]
+        Hack["The Hacker<br/>(SQL Injector)"]
+        AI["The Hallucination<br/>(AI Troll)"]
+    end
+
+    %% Side Characters
+    subgraph Side ["👥 Side Characters"]
+        Py["Pytest<br/>(The Security Guard)"]
+        Post["Postman<br/>(The Detective)"]
+    end
+
+    %% The Plot
+    Next -- "HTTP Request" --> CORS
+    CORS -- "Blocked! (Conflicts)" --> Fast
+    Hack -. "Tries to steal data" .-> Supa
+    Supa -. "RLS Blocks Attack!" .-> Hack
+    Fast --> AI
+    AI -. "Generates bad tags" .-> Fast
+    Py -- "Tests Security" --> Fast
+    Post -- "Finds Bugs" --> Next
+    Fast -- "Saves Data" --> Supa
 
 ## 🔄 User Flow
 

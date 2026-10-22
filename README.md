@@ -15,25 +15,28 @@ flowchart LR
     FE -->|Rendered UI| User
 ```
 
+## 🎬 The Movie: Idea Vault Architecture
+
+```mermaid
 flowchart TD
     %% Heroes
     subgraph Heroes ["Heroes"]
-        Next["Next.js<br/>(The Visionary)"]
-        Fast["FastAPI<br/>(The Brains)"]
-        Supa["Supabase<br/>(The Fortress)"]
+        Next["Next.js (The Visionary)"]
+        Fast["FastAPI (The Brains)"]
+        Supa["Supabase (The Fortress)"]
     end
 
     %% Villains
     subgraph Villains ["Villains"]
-        CORS["The Phantom CORS<br/>(Gatekeeper of Ports)"]
-        Hack["The Hacker<br/>(SQL Injector)"]
-        AI["The Hallucination<br/>(AI Troll)"]
+        CORS["The Phantom CORS (Gatekeeper of Ports)"]
+        Hack["The Hacker (SQL Injector)"]
+        AI["The Hallucination (AI Troll)"]
     end
 
     %% Side Characters
     subgraph Side ["Side Characters"]
-        Py["Pytest<br/>(The Security Guard)"]
-        Post["Postman<br/>(The Detective)"]
+        Py["Pytest (The Security Guard)"]
+        Post["Postman (The Detective)"]
     end
 
     %% The Plot

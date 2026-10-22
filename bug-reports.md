@@ -92,3 +92,6 @@ So you are right—it wasn't actually a bug in the code! However, in QA, you sti
 **Actual Result:** The browser blocks the request with a CORS policy error: `Access to fetch at 'http://127.0.0.1:8000/ideas' from origin 'http://localhost:3000' has been blocked by CORS policy`. 
 **Fix Applied:** We imported `CORSMiddleware` in `main.py` and added `allow_origins=["http://localhost:3000"]`. (Documented in AI_JOURNAL.md).
 **Screenshot:** [Insert a screenshot of the CORS error in the Chrome console]
+
+<img width="1279" height="637" alt="image" src="https://github.com/user-attachments/assets/2347e587-e66d-4895-be3e-92b0fa24c747" />
+

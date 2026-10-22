@@ -1,22 +1,21 @@
-"use client"; // This tells Next.js this file runs in the browser
+"use client";
 
 import { useState, useEffect } from "react";
 
-// 1. Define the TypeScript interface (What an Idea looks like)
+// 1. The TypeScript interface now includes tags
 interface Idea {
   id: number;
   content: string;
   url: string | null;
+  tags: string | null; 
 }
 
 export default function Home() {
-  // 2. Set up State (Variables that update the screen)
-  const [ideas, setIdeas] = useState<Idea[]>([]); // Array of ideas
-  const [content, setContent] = useState("");     // The text input
-  const [url, setUrl] = useState("");             // The URL input
+  const [ideas, setIdeas] = useState<Idea[]>([]);
+  const [content, setContent] = useState("");
+  const [url, setUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // 3. Fetch ideas from FastAPI
   const fetchIdeas = async () => {
     try {
       const response = await fetch("http://127.0.0.1:8000/ideas");
@@ -27,33 +26,25 @@ export default function Home() {
     }
   };
 
-  // Run fetchIdeas once when the page loads
   useEffect(() => {
     fetchIdeas();
   }, []);
 
-  // 4. Handle the form submission (Add a new idea)
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); // Stop page refresh
-    if (!content) return; // Don't submit empty ideas
+    e.preventDefault();
+    if (!content) return;
 
     setIsLoading(true);
 
     try {
-      // Send data to FastAPI
       await fetch("http://127.0.0.1:8000/ideas", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content, url: url || null }),
       });
 
-      // Clear the form
       setContent("");
       setUrl("");
-      
-      // Refresh the list
       await fetchIdeas();
     } catch (error) {
       console.error("Failed to add idea:", error);
@@ -62,7 +53,6 @@ export default function Home() {
     }
   };
 
-  // 5. The UI (HTML + Tailwind CSS)
   return (
     <main className="min-h-screen bg-gray-900 text-white p-8">
       <div className="max-w-3xl mx-auto">
@@ -121,11 +111,26 @@ export default function Home() {
                       href={idea.url} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-blue-400 hover:underline text-sm break-all"
+                      className="text-blue-400 hover:underline text-sm break-all block mb-3"
                     >
                       {idea.url}
                     </a>
                   )}
+
+                  {/* THIS IS THE NEW TAG DISPLAY BLOCK */}
+                  {idea.tags && (
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {idea.tags.split(", ").map((tag, index) => (
+                        <span 
+                          key={index} 
+                          className="bg-blue-900 text-blue-200 text-xs px-2 py-1 rounded-full border border-blue-700"
+                        >
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  
                 </div>
               ))}
             </div>

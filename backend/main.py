@@ -1,4 +1,3 @@
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -10,21 +9,21 @@ class Idea(Base):
     __tablename__ = "ideas"
     
     id = Column(Integer, primary_key=True, index=True)
-    content = Column(String, nullable=False) # NOT NULL
+    content = Column(String, nullable=False)
     url = Column(String, nullable=True)
+    tags = Column(String, nullable=True) # <-- Added tags column
 
 # Create the table
 Base.metadata.create_all(bind=engine)
-
 
 # --- 2. DEFINE THE PYDANTIC SCHEMA ---
 class IdeaCreate(BaseModel):
     content: str
     url: str | None = None
 
-
 # --- 3. CREATE THE API ---
 app = FastAPI()
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -41,41 +40,31 @@ def get_ideas():
     db.close()
     return ideas
 
-# Endpoint B: POST a new idea
+# Endpoint B: POST a new idea (Now with Smart Tags!)
 @app.post("/ideas")
 def create_idea(idea: IdeaCreate):
     db = SessionLocal()
-    new_idea = Idea(content=idea.content, url=idea.url)
+    
+    # --- MOCK NLP LOGIC ---
+    text = idea.content.lower()
+    generated_tags = []
+    
+    if "app" in text or "build" in text: generated_tags.append("side-project")
+    if "habit" in text or "health" in text: generated_tags.append("health")
+    if "react" in text or "python" in text or "code" in text: generated_tags.append("coding")
+    if "read" in text or "article" in text: generated_tags.append("reading")
+    if "ai" in text or "startup" in text: generated_tags.append("business")
+    
+    if not generated_tags:
+        generated_tags.append("random-thought")
+        
+    # Convert list to a comma-separated string (e.g., "side-project, coding")
+    tags_string = ", ".join(generated_tags[:3])
+    
+    # Save to database
+    new_idea = Idea(content=idea.content, url=idea.url, tags=tags_string)
     db.add(new_idea)
     db.commit()
     db.refresh(new_idea)
     db.close()
     return new_idea
-
-# --- 4. THE SMART TAG GENERATOR (Mock NLP) ---
-class TagRequest(BaseModel):
-    text: str
-
-@app.post("/generate-tags")
-def generate_tags(request: TagRequest):
-    text = request.text.lower()
-    tags = []
-    
-    # Simple keyword matching logic
-    if "app" in text or "build" in text:
-        tags.append("side-project")
-    if "habit" in text or "health" in text or "workout" in text:
-        tags.append("health")
-    if "react" in text or "python" in text or "code" in text or "api" in text:
-        tags.append("coding")
-    if "read" in text or "article" in text or "book" in text:
-        tags.append("reading")
-    if "ai" in text or "student" in text or "startup" in text:
-        tags.append("business")
-        
-    # If no keywords matched, give a default tag
-    if not tags:
-        tags.append("random-thought")
-        
-    # Return the top 3 tags
-    return {"original_text": request.text, "generated_tags": tags[:3]}

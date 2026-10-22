@@ -1,4 +1,6 @@
+
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy import Column, Integer, String
 from database import SessionLocal, engine, Base
@@ -23,6 +25,13 @@ class IdeaCreate(BaseModel):
 
 # --- 3. CREATE THE API ---
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Endpoint A: GET all ideas
 @app.get("/ideas")

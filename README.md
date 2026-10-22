@@ -15,40 +15,6 @@ flowchart LR
     FE -->|Rendered UI| User
 ```
 
-## 🎬 The Movie: Idea Vault Architecture
-
-```mermaid
-flowchart TD
-    %% Heroes
-    subgraph Heroes ["Heroes"]
-        Next["Next.js (The Visionary)"]
-        Fast["FastAPI (The Brains)"]
-        Supa["Supabase (The Fortress)"]
-    end
-
-    %% Villains
-    subgraph Villains ["Villains"]
-        CORS["The Phantom CORS (Gatekeeper of Ports)"]
-        Hack["The Hacker (SQL Injector)"]
-        AI["The Hallucination (AI Troll)"]
-    end
-
-    %% Side Characters
-    subgraph Side ["Side Characters"]
-        Py["Pytest (The Security Guard)"]
-        Post["Postman (The Detective)"]
-    end
-
-    %% The Plot
-    Next -- "HTTP Request" --> CORS
-    CORS -- "Blocked! (Conflicts)" --> Fast
-    Hack -. "Tries to steal data" .-> Supa
-    Supa -. "RLS Blocks Attack!" .-> Hack
-    Fast --> AI
-    AI -. "Generates bad tags" .-> Fast
-    Py -- "Tests Security" --> Fast
-    Post -- "Finds Bugs" --> Next
-    Fast -- "Saves Data" --> Supa
 
 ## 🔄 User Flow
 

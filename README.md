@@ -17,21 +17,21 @@ flowchart LR
 
 flowchart TD
     %% Heroes
-    subgraph Heroes ["🦸‍♂️ The Heroes"]
+    subgraph Heroes ["Heroes"]
         Next["Next.js<br/>(The Visionary)"]
         Fast["FastAPI<br/>(The Brains)"]
         Supa["Supabase<br/>(The Fortress)"]
     end
 
     %% Villains
-    subgraph Villains ["🦹‍♂️ The Villains"]
+    subgraph Villains ["Villains"]
         CORS["The Phantom CORS<br/>(Gatekeeper of Ports)"]
         Hack["The Hacker<br/>(SQL Injector)"]
         AI["The Hallucination<br/>(AI Troll)"]
     end
 
     %% Side Characters
-    subgraph Side ["👥 Side Characters"]
+    subgraph Side ["Side Characters"]
         Py["Pytest<br/>(The Security Guard)"]
         Post["Postman<br/>(The Detective)"]
     end

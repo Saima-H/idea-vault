@@ -38,8 +38,16 @@ export default function Dashboard() {
   // 2. Fetch ideas for this specific user
   const fetchIdeas = async () => {
     if (!userEmail) return;
+    
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+
     try {
-      const response = await fetch(`http://127.0.0.1:8000/ideas/${userEmail}`);
+      const response = await fetch(`http://127.0.0.1:8000/ideas`, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        }
+      });
       const data = await response.json();
       setIdeas(data);
     } catch (error) {
@@ -56,14 +64,20 @@ export default function Dashboard() {
     e.preventDefault();
     if (!content || !userEmail) return;
 
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+
     setIsLoading(true);
     try {
       await fetch("http://127.0.0.1:8000/ideas", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
         body: JSON.stringify({ user_id: userEmail, content, url: url || null }),
       });
-
+      
       setContent("");
       setUrl("");
       await fetchIdeas();
@@ -74,14 +88,30 @@ export default function Dashboard() {
     }
   };
 
+  // 4. Log Out Function
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/";
+  };
+
   if (!userEmail) return <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">Loading...</div>;
 
   return (
     <main className="min-h-screen bg-gray-900 text-white p-8">
       <div className="max-w-3xl mx-auto">
+        
+        {/* HEADER WITH LOGOUT BUTTON */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold text-blue-400">💡 Idea Vault</h1>
-          <span className="text-gray-400 text-sm">Logged in as: {userEmail}</span>
+          <div className="flex items-center gap-4">
+            <span className="text-gray-400 text-sm">Logged in as: {userEmail}</span>
+            <button 
+              onClick={handleLogout} 
+              className="bg-red-600 hover:bg-red-700 text-white px-4 py-1 rounded text-sm transition"
+            >
+              Log Out
+            </button>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-gray-800 p-6 rounded-lg shadow-lg mb-8">

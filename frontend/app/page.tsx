@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@supabase/supabase-js";
+import { useRouter } from "next/navigation";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -11,19 +12,23 @@ const supabase = createClient(
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // 1. Talk to Supabase Auth
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
+    // 2. Handle the result
     if (error) {
-      alert(error.message);
+      alert(error.message); // Show error if wrong password
     } else {
-      alert("Logged in successfully! (Token: " + data.session.access_token + ")");
-      // We will redirect to the dashboard tomorrow!
+      // 3. THE REDIRECT: Send them to the dashboard
+      router.push("/dashboard"); 
     }
   };
 

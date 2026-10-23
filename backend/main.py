@@ -9,15 +9,17 @@ class Idea(Base):
     __tablename__ = "ideas"
     
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String, nullable=False) # <-- ADD THIS
     content = Column(String, nullable=False)
     url = Column(String, nullable=True)
-    tags = Column(String, nullable=True) # <-- Added tags column
+    tags = Column(String, nullable=True)
 
 # Create the table
 Base.metadata.create_all(bind=engine)
 
 # --- 2. DEFINE THE PYDANTIC SCHEMA ---
 class IdeaCreate(BaseModel):
+    user_id: str  # <-- ADD THIS
     content: str
     url: str | None = None
 
@@ -32,18 +34,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Endpoint A: GET all ideas
-@app.get("/ideas")
-def get_ideas():
+# Update the GET endpoint to filter by user
+@app.get("/ideas/{user_id}")
+def get_ideas(user_id: str):
     db = SessionLocal()
-    ideas = db.query(Idea).all()
+    ideas = db.query(Idea).filter(Idea.user_id == user_id).all()
     db.close()
     return ideas
 
-# Endpoint B: POST a new idea (Now with Smart Tags!)
+# Update the POST endpoint to save the user_id
 @app.post("/ideas")
 def create_idea(idea: IdeaCreate):
-    db = SessionLocal()
+    db = SessionLocal()    
     
     # --- MOCK NLP LOGIC ---
     text = idea.content.lower()
@@ -61,8 +63,13 @@ def create_idea(idea: IdeaCreate):
     # Convert list to a comma-separated string (e.g., "side-project, coding")
     tags_string = ", ".join(generated_tags[:3])
     
-    # Save to database
-    new_idea = Idea(content=idea.content, url=idea.url, tags=tags_string)
+    # Fixed indentation here!
+    new_idea = Idea(
+        user_id=idea.user_id, 
+        content=idea.content, 
+        url=idea.url, 
+        tags=tags_string
+    )
     db.add(new_idea)
     db.commit()
     db.refresh(new_idea)

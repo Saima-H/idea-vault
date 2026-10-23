@@ -16,7 +16,6 @@ flowchart LR
 ```
 
 
-
 ## 🔄 User Flow
 
 ```mermaid
@@ -42,7 +41,6 @@ flowchart TD
     DelAPI --> ViewAll
 ```
 
----
 
 ## 🗄️ Database Schema
 

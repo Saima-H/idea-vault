@@ -40,39 +40,45 @@ app.add_middleware(
 # Replace your current GET /ideas with this:
 @app.get("/ideas")
 def get_ideas(authorization: str = Header(None)):
-    if not authorization:
-        raise HTTPException(status_code=401, detail="No token provided")
+    # 1. Check if header exists AND has the Bearer format
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing Authorization Header")
         
-    # The header looks like "Bearer eyJhbG..."
-    token = authorization.split(" ")[1]
-    
     try:
-        # Note: In a real app, you would verify the token signature here.
-        # For this assignment, we will pass the token to Supabase to enforce RLS.
-        pass 
+        token = authorization.split(" ")[1]
+        payload = jwt.get_unverified_claims(token)
+        user_email = payload.get("email")
+        if not user_email:
+            raise Exception()
     except Exception:
-        raise HTTPException(status_code=401, detail="Invalid token")
-
+        raise HTTPException(status_code=401, detail="Invalid Token")
+        
     db = SessionLocal()
-    # We are fetching ALL ideas. Supabase RLS will block the bad ones.
-    # But wait! SQLAlchemy uses our Postgres connection string, not the user's token.
-    # We will do the filtering in Python for now to keep it simple, 
-    # but prove RLS works via Supabase API directly.
-    
-    # To actually use RLS via FastAPI, we need to use the Supabase client, 
-    # but let's stick to SQLAlchemy and filter by the user_id from the token.
-    
-    # Decode the token (without verifying signature for simplicity in this project)
-    payload = jwt.get_unverified_claims(token)
-    user_email = payload.get("email")
-    
     ideas = db.query(Idea).filter(Idea.user_id == user_email).all()
     db.close()
     return ideas
-
 # Update the POST endpoint to save the user_id
+
 @app.post("/ideas")
-def create_idea(idea: IdeaCreate):
+def create_idea(idea: IdeaCreate, authorization: str = Header(None)):
+    # 1. Check if header exists AND has the Bearer format
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing Authorization Header")
+        
+    try:
+        token = authorization.split(" ")[1]
+        payload = jwt.get_unverified_claims(token)
+        user_email = payload.get("email")
+        if not user_email:
+            raise Exception()
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid Token")
+
+    # 2. THE BUG FIX: Prevent spoofing
+    if idea.user_id != user_email:
+         raise HTTPException(status_code=403, detail="You can only create ideas for yourself")
+
+   
     db = SessionLocal()    
     
     # --- MOCK NLP LOGIC ---

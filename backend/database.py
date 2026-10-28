@@ -1,8 +1,19 @@
+import os
+from pathlib import Path
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-# PASTE YOUR SUPABASE URL HERE
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres.kcphopjpvtrllckyjnfd:Khanandkhan767%40@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres"
+BASE_DIR = Path(__file__).resolve().parent
+ENV_PATH = BASE_DIR / ".env"
+load_dotenv(dotenv_path=ENV_PATH)
+
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
+
+if SQLALCHEMY_DATABASE_URL is None:
+    raise ValueError("CRITICAL ERROR: DATABASE_URL is missing! Check your .env file.")
+
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 Base = declarative_base()

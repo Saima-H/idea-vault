@@ -1,30 +1,68 @@
+from database import SessionLocal
+from models import Student, Paper, Question, AnswerScript, QuestionMark
 import random
 
-print('-- Insert 3 sections of students (10 each)')
-for section in ['A', 'B', 'C']:
-    for i in range(1, 11):
-        name = f'Student_{section}_{i}'
-        roll = i
-        adm = f'ADM_{section}_{i}'
-        print(f"INSERT INTO students (name, roll_number, class, section, admission_number) VALUES ('{name}', {roll}, '10', '{section}', '{adm}');")
+def seed_database():
+    db = SessionLocal()
+    
+    print("Deleting old data...")
+    # We delete to prevent duplicates if we run it twice
+    db.query(QuestionMark).delete()
+    db.query(AnswerScript).delete()
+    db.query(Question).delete()
+    db.query(Paper).delete()
+    db.query(Student).delete()
+    db.commit()
 
-print('-- Insert 2 Papers')
-print("INSERT INTO papers (name, total_max_marks) VALUES ('Math Midterm', 100);")
-print("INSERT INTO papers (name, total_max_marks) VALUES ('Science Final', 100);")
+    print("Inserting 30 students...")
+    students = []
+    for section in ['A', 'B', 'C']:
+        for i in range(1, 11):
+            student = Student(
+                name=f'Student_{section}_{i}',
+                roll_number=i,
+                class_name='10',
+                section=section,
+                admission_number=f'ADM_{section}_{i}'
+            )
+            students.append(student)
+    db.add_all(students)
+    db.commit()
 
-print('-- Insert Questions for Math Paper (Paper 1)')
-for i in range(1, 6):
-    print(f"INSERT INTO questions (paper_id, question_number, max_marks, choice_group) VALUES (1, {i}, 20, NULL);")
+    print("Inserting Papers and Questions...")
+    math_paper = Paper(name='Math Midterm', total_max_marks=100)
+    science_paper = Paper(name='Science Final', total_max_marks=100)
+    db.add_all([math_paper, science_paper])
+    db.commit()
 
-print('-- Insert Questions for Science Paper (Paper 2)')
-print("INSERT INTO questions (paper_id, question_number, max_marks, choice_group) VALUES (2, 1, 25, 'Group A');")
-print("INSERT INTO questions (paper_id, question_number, max_marks, choice_group) VALUES (2, 2, 25, 'Group A');")
-print("INSERT INTO questions (paper_id, question_number, max_marks, choice_group) VALUES (2, 3, 25, 'Group B');")
-print("INSERT INTO questions (paper_id, question_number, max_marks, choice_group) VALUES (2, 4, 25, 'Group B');")
+    # Questions for Math (Paper 1)
+    for i in range(1, 6):
+        q = Question(paper_id=math_paper.id, question_number=i, max_marks=20, choice_group=None)
+        db.add(q)
 
-print('-- Create Answer Scripts and Assign Random Marks to Students')
-for student_id in range(1, 31):
-    print(f"INSERT INTO answer_scripts (id, paper_id, student_id) VALUES ({student_id}, 1, {student_id});")
-    for q_id in range(1, 6):
-        mark = random.randint(5, 20)
-        print(f"INSERT INTO question_marks (script_id, question_id, marks_obtained) VALUES ({student_id}, {q_id}, {mark});")
+    # Questions for Science (Paper 2)
+    db.add(Question(paper_id=science_paper.id, question_number=1, max_marks=25, choice_group='Group A'))
+    db.add(Question(paper_id=science_paper.id, question_number=2, max_marks=25, choice_group='Group A'))
+    db.add(Question(paper_id=science_paper.id, question_number=3, max_marks=25, choice_group='Group B'))
+    db.add(Question(paper_id=science_paper.id, question_number=4, max_marks=25, choice_group='Group B'))
+    db.commit()
+
+    print("Creating Scripts and Assigning Marks...")
+    # For each student, create a script for Math and add random marks
+    for student in students:
+        script = AnswerScript(paper_id=math_paper.id, student_id=student.id)
+        db.add(script)
+        db.commit() # Commit to get the script ID
+
+        # Add random marks for the 5 questions
+        for q_id in range(1, 6):
+            mark = random.randint(5, 20)
+            qm = QuestionMark(script_id=script.id, question_id=q_id, marks_obtained=mark)
+            db.add(qm)
+    
+    db.commit()
+    db.close()
+    print("✅ Database seeded successfully!")
+
+if __name__ == "__main__":
+    seed_database()

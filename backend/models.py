@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, Numeric, ForeignKey, UniqueConstraint, Boolean
+from sqlalchemy import Column, Integer, String, Numeric, ForeignKey, UniqueConstraint, Boolean, DateTime
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 from database import Base
 
 class Student(Base):
@@ -7,7 +8,7 @@ class Student(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
     roll_number = Column(Integer, nullable=False)
-    class_name = Column("class", String(50), nullable=False) # 'class' is reserved in Python
+    class_name = Column("class", String(50), nullable=False)
     section = Column(String(10), nullable=False)
     admission_number = Column(String(50), unique=True, nullable=False)
     
@@ -53,3 +54,13 @@ class QuestionMark(Base):
     is_best_choice = Column(Boolean, default=False)
     script = relationship("AnswerScript", back_populates="marks")
     question = relationship("Question", back_populates="marks")
+
+# --- NEW AUDIT LOG TABLE ---
+class MarkChange(Base):
+    __tablename__ = "mark_changes"
+    id = Column(Integer, primary_key=True, index=True)
+    question_mark_id = Column(Integer, nullable=False)
+    old_marks = Column(Numeric(5, 2), nullable=False)
+    new_marks = Column(Numeric(5, 2), nullable=False)
+    changed_by = Column(String(255), nullable=False)
+    changed_at = Column(DateTime, server_default=func.now())

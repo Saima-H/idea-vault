@@ -36,7 +36,7 @@ export default function Dashboard() {
   }, []);
 
   // 2. Fetch ideas for this specific user
-  const fetchIdeas = async () => {
+   const fetchIdeas = async () => {
     if (!userEmail) return;
     
     const { data: { session } } = await supabase.auth.getSession();
@@ -48,13 +48,24 @@ export default function Dashboard() {
           "Authorization": `Bearer ${token}`,
         }
       });
+      
+      if (!response.ok) {
+        setIdeas([]); // If the backend throws an error (like table not found), just set an empty array
+        return;
+      }
+
       const data = await response.json();
-      setIdeas(data);
+      // Make sure it's actually an array before setting it
+      if (Array.isArray(data)) {
+        setIdeas(data);
+      } else {
+        setIdeas([]);
+      }
     } catch (error) {
       console.error("Failed to fetch ideas:", error);
+      setIdeas([]);
     }
   };
-
   useEffect(() => {
     if (userEmail) fetchIdeas();
   }, [userEmail]);

@@ -7,6 +7,7 @@ class Student(Base):
     __tablename__ = "students"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
+    email = Column(String(255), unique=True, nullable=True)
     roll_number = Column(Integer, nullable=False)
     class_name = Column("class", String(50), nullable=False)
     section = Column(String(10), nullable=False)
